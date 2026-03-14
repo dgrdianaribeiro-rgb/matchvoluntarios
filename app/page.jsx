@@ -3,11 +3,10 @@
 import { useMemo, useState } from 'react';
 
 const MATCH_WEIGHTS = {
-    tempoLivre: 30,
-    musica: 20,
-    bairro: 15,
-    tipoProfissional: 15,
-    signo: 10
+    tipoProfissional: 40,
+    bairro: 30,
+    signo: 20,
+    musica: 10
 };
 
 const COMMUNICATION_LABELS = {
@@ -41,7 +40,7 @@ const INITIAL_FORM = {
     comunicacao: 'moderado'
 };
 
-const CSV_COLUMNS = ['nome', 'bairro', 'signo', 'tipoProfissional', 'tempoLivre', 'musica', 'comunicacao'];
+const CSV_COLUMNS = ['nome', 'tipoProfissional', 'bairro', 'signo', 'musica', 'comunicacao', 'tempoLivre'];
 
 export default function Page() {
     const [activeTab, setActiveTab] = useState('padrinhos');
@@ -352,7 +351,7 @@ export default function Page() {
                     </button>
                 </div>
                 <p className="mt-3 text-sm text-blue-700">
-                    Regras aplicadas: sem repetição, cada padrinho recebe no máximo 6 afilhados e priorização por afinidade ponderada (comunicação é informativa).
+                    Regras aplicadas: sem repetição, cada padrinho recebe no máximo 6 afilhados e priorização por afinidade ponderada (comunicação e tempo livre são informativos).
                 </p>
 
                 <div className="mt-6 space-y-4">
@@ -365,7 +364,8 @@ export default function Page() {
                                     <div key={`${item.afilhado.nome}-${index}`} className="p-3 bg-white border rounded border-blue-100">
                                         <p className="font-semibold text-blue-900">Afilhado: {item.afilhado.nome} (Comunicação: {COMMUNICATION_LABELS[item.afilhado.comunicacao]})</p>
                                         <p className="text-sm text-blue-800">Pontuação: {item.score.toFixed(2)}</p>
-                                                                                <ol className="pl-4 mt-2 text-sm list-decimal text-blue-900">
+                                        <p className="text-sm text-blue-800">Como começar o papo: {item.afilhado.tempoLivre.join(', ') || 'Use os interesses do cadastro.'}</p>
+                                        <ol className="pl-4 mt-2 text-sm list-decimal text-blue-900">
                                             {item.reasons
                                                 .sort((a, b) => b.score - a.score)
                                                 .map((reason) => (
@@ -395,19 +395,13 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
                 <h3 className="mb-3 text-lg text-blue-900">Cadastro Individual</h3>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <Input label="Nome Completo" value={form.nome} onChange={(value) => onFormChange('nome', value)} />
-                    <Input label="Bairro" value={form.bairro} onChange={(value) => onFormChange('bairro', value)} />
-                    <Input label="Signo" value={form.signo} onChange={(value) => onFormChange('signo', value)} />
                     <Input
                         label="Tipo de Profissional"
                         value={form.tipoProfissional}
                         onChange={(value) => onFormChange('tipoProfissional', value)}
                     />
-                    <Input
-                        label="Tempo Livre"
-                        value={form.tempoLivre}
-                        onChange={(value) => onFormChange('tempoLivre', value)}
-                        placeholder="Ex: Esportes, Filmes, Leitura"
-                    />
+                    <Input label="Bairro" value={form.bairro} onChange={(value) => onFormChange('bairro', value)} />
+                    <Input label="Signo" value={form.signo} onChange={(value) => onFormChange('signo', value)} />
                     <Input
                         label="Música"
                         value={form.musica}
@@ -428,6 +422,12 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
                             ))}
                         </select>
                     </div>
+                    <Input
+                        label="Tempo Livre"
+                        value={form.tempoLivre}
+                        onChange={(value) => onFormChange('tempoLivre', value)}
+                        placeholder="Ex: Esportes, Filmes, Leitura"
+                    />
                 </div>
                 <button type="button" className="mt-4 btn bg-blue-700 text-white hover:bg-blue-800" onClick={onAddSingle}>
                     Adicionar Cadastro
@@ -437,15 +437,15 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
             <div>
                 <h3 className="mb-3 text-lg text-blue-900">Em Massa (CSV)</h3>
                 <p className="mb-2 text-sm text-blue-700">
-                    Colunas aceitas: nome, bairro, signo, tipoProfissional, tempoLivre, musica, comunicacao
+                    Colunas aceitas: nome, tipoProfissional, bairro, signo, musica, comunicacao, tempoLivre
                 </p>
                 <label className="inline-flex items-center gap-3 px-4 py-2 font-semibold text-white bg-blue-700 rounded cursor-pointer hover:bg-blue-800">
                     Escolher arquivo CSV
                     <input type="file" accept=".csv" onChange={onCsvUpload} className="hidden" />
                 </label>
                 <p className="mt-2 text-xs text-blue-700">
-                    tempoLivre = interesses/lazer; musica = gosto musical; bairro = onde mora; tipoProfissional = área profissional;
-                    comunicacao = intenso, moderado ou minimo.
+                    tipoProfissional = área profissional; bairro = onde mora; musica = estilo musical; comunicacao = informativo;
+                    tempoLivre = informativo para sugestão de início de conversa.
                 </p>
             </div>
 
@@ -456,7 +456,7 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
                 </p>
                 <textarea
                     className="w-full h-40 input"
-                    placeholder={'nome,bairro,signo,tipoProfissional,tempoLivre,musica,comunicacao\nJoão,Bonsucesso,Peixes,Auditor,Esportes,Pop,moderado'}
+                    placeholder={'nome,tipoProfissional,bairro,signo,musica,comunicacao,tempoLivre\nJoão,Auditor,Bonsucesso,Peixes,Pop,moderado,Esportes'}
                     value={bulkTextValue}
                     onChange={(event) => onBulkTextChange(event.target.value)}
                 />
@@ -480,18 +480,18 @@ function GuideTab() {
                 <li>Use abas separadas para cadastrar Padrinhos e Afilhados.</li>
                 <li>Você pode cadastrar individualmente ou subir um CSV (em massa).</li>
                 <li>
-                    Estrutura do CSV: <code>nome,bairro,signo,tipoProfissional,tempoLivre,musica,comunicacao</code>
+                    Estrutura do CSV: <code>nome,tipoProfissional,bairro,signo,musica,comunicacao,tempoLivre</code>
                 </li>
                 <li>
-                    Significados: <strong>bairro</strong> = onde mora; <strong>tipoProfissional</strong> = área profissional;{' '}
-                    <strong>tempoLivre</strong> = atividades/interesses de lazer; <strong>musica</strong> = estilo musical.
+                    Significados: <strong>tipoProfissional</strong> = área profissional; <strong>bairro</strong> = onde mora;{' '}
+                    <strong>musica</strong> = estilo musical; <strong>comunicacao</strong> e <strong>tempoLivre</strong> = informativos.
                 </li>
                 <li>
-                    Pesos no match: Tempo Livre (30%), Música (20%), Bairro (15%), Tipo Profissional (15%) e Signo (10%).
+                    Pesos no match: Tipo Profissional (40%), Bairro (30%), Signo (20%) e Música (10%).
                 </li>
                 <li>Cada padrinho recebe no máximo 6 afilhados e ninguém é repetido no mesmo grupo.</li>
                 <li>
-                    Comunicação do afilhado: 1 = Intenso, 2 = Moderado, 3 = Mínimo. No resultado, aparece como informativo no padrinho e no afilhado.
+                    Comunicação do afilhado: 1 = Intenso, 2 = Moderado, 3 = Mínimo. Comunicação e Tempo Livre aparecem como informativos para apoiar o início da conversa.
                 </li>
             </ul>
             <p className="text-sm text-blue-700">
@@ -630,12 +630,6 @@ function splitCsvLine(line) {
 function scoreMatch(padrinho, afilhado) {
     const reasons = [];
 
-    const tempoLivreScore = listOverlapScore(padrinho.tempoLivre, afilhado.tempoLivre) * MATCH_WEIGHTS.tempoLivre;
-    reasons.push({
-        label: buildReason('Tempo Livre', padrinho.tempoLivre, afilhado.tempoLivre, MATCH_WEIGHTS.tempoLivre),
-        score: tempoLivreScore
-    });
-
     const musicScore = listOverlapScore(padrinho.musica, afilhado.musica) * MATCH_WEIGHTS.musica;
     reasons.push({
         label: buildReason('Música', padrinho.musica, afilhado.musica, MATCH_WEIGHTS.musica),
@@ -715,7 +709,7 @@ function normalizeDelimiter(text) {
 }
 
 function describePerson(person) {
-    return `Bairro: ${person.bairro || '-'} | Signo: ${person.signo || '-'} | Tipo Profissional: ${person.tipoProfissional || '-'} | Tempo Livre: ${person.tempoLivre.join(', ') || '-'} | Música: ${person.musica.join(', ') || '-'}`;
+    return `Tipo Profissional: ${person.tipoProfissional || '-'} | Bairro: ${person.bairro || '-'} | Signo: ${person.signo || '-'} | Música: ${person.musica.join(', ') || '-'} | Tempo Livre: ${person.tempoLivre.join(', ') || '-'}`;
 }
 
 function clean(value) {
