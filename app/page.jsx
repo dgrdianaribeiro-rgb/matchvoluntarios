@@ -8,7 +8,6 @@ const MATCH_WEIGHTS = {
     bairro: 15,
     profissao: 15,
     signo: 10,
-    comunicacao: 10
 };
 
 const COMMUNICATION_LABELS = {
@@ -353,21 +352,20 @@ export default function Page() {
                     </button>
                 </div>
                 <p className="mt-3 text-sm text-blue-700">
-                    Regras aplicadas: sem repetição, cada padrinho recebe no máximo 6 afilhados e priorização por afinidade ponderada.
+                    Regras aplicadas: sem repetição, cada padrinho recebe no máximo 6 afilhados e priorização por afinidade ponderada (comunicação é informativa).
                 </p>
 
                 <div className="mt-6 space-y-4">
                     {groupedMatchs.map((group) => (
                         <div key={group.padrinho.nome} className="p-4 border rounded border-blue-100 bg-blue-50/60">
-                            <h3 className="text-lg font-bold text-blue-900">{group.padrinho.nome}</h3>
+                            <h3 className="text-lg font-bold text-blue-900">{group.padrinho.nome} <span className="text-sm font-medium text-blue-700">(Comunicação: {COMMUNICATION_LABELS[group.padrinho.comunicacao]})</span></h3>
                             <p className="mb-3 text-sm text-blue-800">{describePerson(group.padrinho)}</p>
                             <div className="space-y-3">
                                 {group.afilhados.map((item, index) => (
                                     <div key={`${item.afilhado.nome}-${index}`} className="p-3 bg-white border rounded border-blue-100">
-                                        <p className="font-semibold text-blue-900">Afilhado: {item.afilhado.nome}</p>
+                                        <p className="font-semibold text-blue-900">Afilhado: {item.afilhado.nome} (Comunicação: {COMMUNICATION_LABELS[item.afilhado.comunicacao]})</p>
                                         <p className="text-sm text-blue-800">Pontuação: {item.score.toFixed(2)}</p>
-                                        <p className="mt-1 text-sm text-blue-800">Visão de comunicação: {item.communicationVision}</p>
-                                        <ol className="pl-4 mt-2 text-sm list-decimal text-blue-900">
+                                                                                <ol className="pl-4 mt-2 text-sm list-decimal text-blue-900">
                                             {item.reasons
                                                 .sort((a, b) => b.score - a.score)
                                                 .map((reason) => (
@@ -489,11 +487,11 @@ function GuideTab() {
                     <strong>musica</strong> = estilo musical; <strong>profissao</strong> = trabalho/especialização.
                 </li>
                 <li>
-                    Pesos no match: Séries (30%), Música (20%), Bairro (15%), Trabalho (15%), Signo (10%) e Comunicação (10%).
+                    Pesos no match: Séries (30%), Música (20%), Bairro (15%), Trabalho (15%) e Signo (10%).
                 </li>
                 <li>Cada padrinho recebe no máximo 6 afilhados e ninguém é repetido no mesmo grupo.</li>
                 <li>
-                    Comunicação do afilhado: 1 = Intenso, 2 = Moderado, 3 = Mínimo. O painel mostra isso na visão de match.
+                    Comunicação do afilhado: 1 = Intenso, 2 = Moderado, 3 = Mínimo. No resultado, aparece como informativo no padrinho e no afilhado.
                 </li>
             </ul>
             <p className="text-sm text-blue-700">
@@ -662,12 +660,6 @@ function scoreMatch(padrinho, afilhado) {
         score: signoScore
     });
 
-    const communicationScore = communicationCompatibility(padrinho.comunicacao, afilhado.comunicacao) * MATCH_WEIGHTS.comunicacao;
-    reasons.push({
-        label: `Comunicação (${MATCH_WEIGHTS.comunicacao}%): ${COMMUNICATION_LABELS[padrinho.comunicacao]} ↔ ${COMMUNICATION_LABELS[afilhado.comunicacao]}`,
-        score: communicationScore
-    });
-
     const total = reasons.reduce((acc, item) => acc + item.score, 0);
     return {
         total,
@@ -693,14 +685,6 @@ function listOverlapScore(listA, listB) {
     const setB = new Set(listB.map((item) => item.toLowerCase()));
     const intersection = [...setA].filter((item) => setB.has(item)).length;
     return intersection > 0 ? intersection / Math.max(setA.size, setB.size) : 0;
-}
-
-function communicationCompatibility(a, b) {
-    const levels = { intenso: 3, moderado: 2, minimo: 1 };
-    const distance = Math.abs((levels[a] || 2) - (levels[b] || 2));
-    if (distance === 0) return 1;
-    if (distance === 1) return 0.6;
-    return 0.25;
 }
 
 function splitTags(value) {
