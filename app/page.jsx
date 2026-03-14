@@ -547,8 +547,9 @@ function parseCsv(text) {
 
     if (!normalizedLines.length) return [];
 
-    const firstRow = splitCsvLine(normalizedLines[0]).map((item) => item.toLowerCase().trim());
-    const hasHeader = firstRow.some((item) => CSV_COLUMNS.includes(item));
+    const firstRow = splitCsvLine(normalizedLines[0]);
+    const headerMap = getHeaderMap(firstRow);
+    const hasHeader = Object.keys(headerMap).length > 0;
 
     const start = hasHeader ? 1 : 0;
     const rows = [];
@@ -556,13 +557,49 @@ function parseCsv(text) {
     for (let index = start; index < normalizedLines.length; index += 1) {
         const row = splitCsvLine(normalizedLines[index]);
         const model = {};
+
         CSV_COLUMNS.forEach((column, colIndex) => {
-            model[column] = row[colIndex] || '';
+            const sourceIndex = hasHeader ? headerMap[column] : colIndex;
+            model[column] = sourceIndex === undefined ? '' : row[sourceIndex] || '';
         });
+
         rows.push(model);
     }
 
     return rows;
+}
+
+function getHeaderMap(rawHeader) {
+    const aliases = {
+        nome: ['nome', 'nome completo'],
+        profissao: ['profissao', 'profissão', 'trabalho', 'especializacao', 'especialização'],
+        signo: ['signo'],
+        series: ['series', 'séries', 'serie', 'série'],
+        musica: ['musica', 'música', 'cantor', 'banda', 'cantor/banda', 'musica favorita', 'música favorita'],
+        bairro: ['bairro', 'moradia', 'onde mora'],
+        comunicacao: ['comunicacao', 'comunicação', 'preferencia de comunicacao', 'preferência de comunicação']
+    };
+
+    const normalizedHeader = rawHeader.map((item) => normalizeHeaderValue(item));
+    const map = {};
+
+    Object.entries(aliases).forEach(([canonicalKey, aliasList]) => {
+        const aliasSet = new Set(aliasList.map((item) => normalizeHeaderValue(item)));
+        const foundIndex = normalizedHeader.findIndex((item) => aliasSet.has(item));
+        if (foundIndex >= 0) {
+            map[canonicalKey] = foundIndex;
+        }
+    });
+
+    return map;
+}
+
+function normalizeHeaderValue(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
 }
 
 function splitCsvLine(line) {
