@@ -3,11 +3,11 @@
 import { useMemo, useState } from 'react';
 
 const MATCH_WEIGHTS = {
-    series: 30,
-    music: 20,
+    tempoLivre: 30,
+    musica: 20,
     bairro: 15,
-    profissao: 15,
-    signo: 10,
+    tipoProfissional: 15,
+    signo: 10
 };
 
 const COMMUNICATION_LABELS = {
@@ -33,15 +33,15 @@ const COMMUNICATION_OPTIONS = [
 
 const INITIAL_FORM = {
     nome: '',
-    profissao: '',
-    signo: '',
-    series: '',
-    musica: '',
     bairro: '',
+    signo: '',
+    tipoProfissional: '',
+    tempoLivre: '',
+    musica: '',
     comunicacao: 'moderado'
 };
 
-const CSV_COLUMNS = ['nome', 'profissao', 'signo', 'series', 'musica', 'bairro', 'comunicacao'];
+const CSV_COLUMNS = ['nome', 'bairro', 'signo', 'tipoProfissional', 'tempoLivre', 'musica', 'comunicacao'];
 
 export default function Page() {
     const [activeTab, setActiveTab] = useState('padrinhos');
@@ -395,25 +395,25 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
                 <h3 className="mb-3 text-lg text-blue-900">Cadastro Individual</h3>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <Input label="Nome Completo" value={form.nome} onChange={(value) => onFormChange('nome', value)} />
-                    <Input
-                        label="Trabalho / Especialização"
-                        value={form.profissao}
-                        onChange={(value) => onFormChange('profissao', value)}
-                    />
+                    <Input label="Bairro" value={form.bairro} onChange={(value) => onFormChange('bairro', value)} />
                     <Input label="Signo" value={form.signo} onChange={(value) => onFormChange('signo', value)} />
                     <Input
-                        label="Séries (o que gosta de assistir)"
-                        value={form.series}
-                        onChange={(value) => onFormChange('series', value)}
-                        placeholder="Ex: Dark, Friends"
+                        label="Tipo de Profissional"
+                        value={form.tipoProfissional}
+                        onChange={(value) => onFormChange('tipoProfissional', value)}
                     />
                     <Input
-                        label="Música (gênero/artista)"
+                        label="Tempo Livre"
+                        value={form.tempoLivre}
+                        onChange={(value) => onFormChange('tempoLivre', value)}
+                        placeholder="Ex: Esportes, Filmes, Leitura"
+                    />
+                    <Input
+                        label="Música"
                         value={form.musica}
                         onChange={(value) => onFormChange('musica', value)}
                         placeholder="Ex: Pop, Rock, K-pop"
                     />
-                    <Input label="Bairro (onde mora)" value={form.bairro} onChange={(value) => onFormChange('bairro', value)} />
                     <div>
                         <label className="block mb-1 text-sm font-medium text-blue-900">Preferência de Comunicação</label>
                         <select
@@ -437,14 +437,14 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
             <div>
                 <h3 className="mb-3 text-lg text-blue-900">Em Massa (CSV)</h3>
                 <p className="mb-2 text-sm text-blue-700">
-                    Colunas aceitas: nome, profissao, signo, series, musica, bairro, comunicacao
+                    Colunas aceitas: nome, bairro, signo, tipoProfissional, tempoLivre, musica, comunicacao
                 </p>
                 <label className="inline-flex items-center gap-3 px-4 py-2 font-semibold text-white bg-blue-700 rounded cursor-pointer hover:bg-blue-800">
                     Escolher arquivo CSV
                     <input type="file" accept=".csv" onChange={onCsvUpload} className="hidden" />
                 </label>
                 <p className="mt-2 text-xs text-blue-700">
-                    series = o que assiste; musica = gosto musical; bairro = onde mora; profissao = trabalho/especialização;
+                    tempoLivre = interesses/lazer; musica = gosto musical; bairro = onde mora; tipoProfissional = área profissional;
                     comunicacao = intenso, moderado ou minimo.
                 </p>
             </div>
@@ -456,7 +456,7 @@ function CadastroTab({ title, form, bulkTextValue, onBulkTextChange, onBulkTextI
                 </p>
                 <textarea
                     className="w-full h-40 input"
-                    placeholder={'nome,profissao,signo,series,musica,bairro,comunicacao\nJoão,Auditor,Peixes,"Dark,Friends",Pop,Bonsucesso,moderado'}
+                    placeholder={'nome,bairro,signo,tipoProfissional,tempoLivre,musica,comunicacao\nJoão,Bonsucesso,Peixes,Auditor,Esportes,Pop,moderado'}
                     value={bulkTextValue}
                     onChange={(event) => onBulkTextChange(event.target.value)}
                 />
@@ -480,14 +480,14 @@ function GuideTab() {
                 <li>Use abas separadas para cadastrar Padrinhos e Afilhados.</li>
                 <li>Você pode cadastrar individualmente ou subir um CSV (em massa).</li>
                 <li>
-                    Estrutura do CSV: <code>nome,profissao,signo,series,musica,bairro,comunicacao</code>
+                    Estrutura do CSV: <code>nome,bairro,signo,tipoProfissional,tempoLivre,musica,comunicacao</code>
                 </li>
                 <li>
-                    Significados: <strong>bairro</strong> = onde mora; <strong>series</strong> = o que assiste;{' '}
-                    <strong>musica</strong> = estilo musical; <strong>profissao</strong> = trabalho/especialização.
+                    Significados: <strong>bairro</strong> = onde mora; <strong>tipoProfissional</strong> = área profissional;{' '}
+                    <strong>tempoLivre</strong> = atividades/interesses de lazer; <strong>musica</strong> = estilo musical.
                 </li>
                 <li>
-                    Pesos no match: Séries (30%), Música (20%), Bairro (15%), Trabalho (15%) e Signo (10%).
+                    Pesos no match: Tempo Livre (30%), Música (20%), Bairro (15%), Tipo Profissional (15%) e Signo (10%).
                 </li>
                 <li>Cada padrinho recebe no máximo 6 afilhados e ninguém é repetido no mesmo grupo.</li>
                 <li>
@@ -527,11 +527,11 @@ function Input({ label, value, onChange, placeholder }) {
 function normalizePerson(data) {
     return {
         nome: clean(data.nome),
-        profissao: clean(data.profissao),
-        signo: clean(data.signo),
-        series: splitTags(data.series),
-        musica: splitTags(data.musica),
         bairro: clean(data.bairro),
+        signo: clean(data.signo),
+        tipoProfissional: clean(data.tipoProfissional),
+        tempoLivre: splitTags(data.tempoLivre),
+        musica: splitTags(data.musica),
         comunicacao: normalizeCommunication(data.comunicacao)
     };
 }
@@ -570,11 +570,11 @@ function parseCsv(text) {
 function getHeaderMap(rawHeader) {
     const aliases = {
         nome: ['nome', 'nome completo'],
-        profissao: ['profissao', 'profissão', 'trabalho', 'especializacao', 'especialização'],
-        signo: ['signo'],
-        series: ['series', 'séries', 'serie', 'série'],
-        musica: ['musica', 'música', 'cantor', 'banda', 'cantor/banda', 'musica favorita', 'música favorita'],
         bairro: ['bairro', 'moradia', 'onde mora'],
+        signo: ['signo'],
+        tipoProfissional: ['tipo profissional', 'tipoprofissional', 'profissao', 'profissão', 'trabalho', 'especializacao', 'especialização'],
+        tempoLivre: ['tempo livre', 'tempolivre', 'lazer', 'interesses', 'hobbies', 'hobby'],
+        musica: ['musica', 'música', 'cantor', 'banda', 'cantor/banda', 'musica favorita', 'música favorita'],
         comunicacao: ['comunicacao', 'comunicação', 'preferencia de comunicacao', 'preferência de comunicação']
     };
 
@@ -630,15 +630,15 @@ function splitCsvLine(line) {
 function scoreMatch(padrinho, afilhado) {
     const reasons = [];
 
-    const seriesScore = listOverlapScore(padrinho.series, afilhado.series) * MATCH_WEIGHTS.series;
+    const tempoLivreScore = listOverlapScore(padrinho.tempoLivre, afilhado.tempoLivre) * MATCH_WEIGHTS.tempoLivre;
     reasons.push({
-        label: buildReason('Séries', padrinho.series, afilhado.series, MATCH_WEIGHTS.series),
-        score: seriesScore
+        label: buildReason('Tempo Livre', padrinho.tempoLivre, afilhado.tempoLivre, MATCH_WEIGHTS.tempoLivre),
+        score: tempoLivreScore
     });
 
-    const musicScore = listOverlapScore(padrinho.musica, afilhado.musica) * MATCH_WEIGHTS.music;
+    const musicScore = listOverlapScore(padrinho.musica, afilhado.musica) * MATCH_WEIGHTS.musica;
     reasons.push({
-        label: buildReason('Música', padrinho.musica, afilhado.musica, MATCH_WEIGHTS.music),
+        label: buildReason('Música', padrinho.musica, afilhado.musica, MATCH_WEIGHTS.musica),
         score: musicScore
     });
 
@@ -648,10 +648,10 @@ function scoreMatch(padrinho, afilhado) {
         score: bairroScore
     });
 
-    const profissaoScore = fieldMatchScore(padrinho.profissao, afilhado.profissao) * MATCH_WEIGHTS.profissao;
+    const tipoProfissionalScore = fieldMatchScore(padrinho.tipoProfissional, afilhado.tipoProfissional) * MATCH_WEIGHTS.tipoProfissional;
     reasons.push({
-        label: buildReason('Trabalho', padrinho.profissao, afilhado.profissao, MATCH_WEIGHTS.profissao),
-        score: profissaoScore
+        label: buildReason('Tipo Profissional', padrinho.tipoProfissional, afilhado.tipoProfissional, MATCH_WEIGHTS.tipoProfissional),
+        score: tipoProfissionalScore
     });
 
     const signoScore = fieldMatchScore(padrinho.signo, afilhado.signo) * MATCH_WEIGHTS.signo;
@@ -715,7 +715,7 @@ function normalizeDelimiter(text) {
 }
 
 function describePerson(person) {
-    return `Trabalho: ${person.profissao || '-'} | Bairro: ${person.bairro || '-'} | Séries: ${person.series.join(', ') || '-'} | Música: ${person.musica.join(', ') || '-'} | Signo: ${person.signo || '-'}`;
+    return `Bairro: ${person.bairro || '-'} | Signo: ${person.signo || '-'} | Tipo Profissional: ${person.tipoProfissional || '-'} | Tempo Livre: ${person.tempoLivre.join(', ') || '-'} | Música: ${person.musica.join(', ') || '-'}`;
 }
 
 function clean(value) {
