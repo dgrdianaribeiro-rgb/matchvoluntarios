@@ -5,8 +5,8 @@ import { useMemo, useState } from 'react';
 const MATCH_WEIGHTS = {
     tipoProfissional: 40,
     bairro: 30,
-    signo: 20,
-    musica: 10
+    signo: 15,
+    musica: 15
 };
 
 const COMMUNICATION_LABELS = {
@@ -487,7 +487,7 @@ function GuideTab() {
                     <strong>musica</strong> = estilo musical; <strong>comunicacao</strong> e <strong>tempoLivre</strong> = informativos.
                 </li>
                 <li>
-                    Pesos no match: Tipo Profissional (40%), Bairro (30%), Signo (20%) e Música (10%).
+                    Pesos no match: Profissão (40%), Bairro (30%), Signo (15%) e Música (15%).
                 </li>
                 <li>Cada padrinho recebe no máximo 6 afilhados e ninguém é repetido no mesmo grupo.</li>
                 <li>
@@ -644,7 +644,7 @@ function scoreMatch(padrinho, afilhado) {
 
     const tipoProfissionalScore = fieldMatchScore(padrinho.tipoProfissional, afilhado.tipoProfissional) * MATCH_WEIGHTS.tipoProfissional;
     reasons.push({
-        label: buildReason('Tipo Profissional', padrinho.tipoProfissional, afilhado.tipoProfissional, MATCH_WEIGHTS.tipoProfissional),
+        label: buildReason('Profissão', padrinho.tipoProfissional, afilhado.tipoProfissional, MATCH_WEIGHTS.tipoProfissional),
         score: tipoProfissionalScore
     });
 
