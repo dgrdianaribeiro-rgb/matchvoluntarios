@@ -3,12 +3,10 @@
 import { useMemo, useState } from 'react';
 
 const MATCH_WEIGHTS = {
-    series: 30,
-    music: 20,
-    bairro: 15,
-    profissao: 15,
-    signo: 10,
-    comunicacao: 10
+    profissao: 40,
+    bairro: 30,
+    signo: 15,
+    music: 15
 };
 
 const COMMUNICATION_LABELS = {
@@ -374,8 +372,7 @@ function GuideTab() {
                     Estrutura do CSV: <code>nome,profissao,signo,series,musica,bairro,comunicacao</code>
                 </li>
                 <li>
-                    Campos de afinidade e pesos usados no match: Séries (30%), Música (20%), Bairro (15%), Trabalho (15%),
-                    Signo (10%) e Comunicação (10%).
+                    Campos de afinidade e pesos usados no match: Profissão (40%), Bairro (30%), Signo (15%) e Música (15%).
                 </li>
                 <li>Cada padrinho recebe no máximo 6 afilhados e ninguém é repetido no mesmo grupo.</li>
                 <li>
@@ -481,9 +478,6 @@ function splitCsvLine(line) {
 function scoreMatch(padrinho, afilhado) {
     const reasons = [];
 
-    const seriesScore = listOverlapScore(padrinho.series, afilhado.series) * MATCH_WEIGHTS.series;
-    reasons.push({ label: buildReason('Séries', padrinho.series, afilhado.series, MATCH_WEIGHTS.series), score: seriesScore });
-
     const musicScore = listOverlapScore(padrinho.musica, afilhado.musica) * MATCH_WEIGHTS.music;
     reasons.push({ label: buildReason('Música', padrinho.musica, afilhado.musica, MATCH_WEIGHTS.music), score: musicScore });
 
@@ -498,12 +492,6 @@ function scoreMatch(padrinho, afilhado) {
 
     const signoScore = fieldMatchScore(padrinho.signo, afilhado.signo) * MATCH_WEIGHTS.signo;
     reasons.push({ label: buildReason('Signo', padrinho.signo, afilhado.signo, MATCH_WEIGHTS.signo), score: signoScore });
-
-    const communicationScore = communicationCompatibility(padrinho.comunicacao, afilhado.comunicacao) * MATCH_WEIGHTS.comunicacao;
-    reasons.push({
-        label: `Comunicação (${MATCH_WEIGHTS.comunicacao}%): ${COMMUNICATION_LABELS[padrinho.comunicacao]} ↔ ${COMMUNICATION_LABELS[afilhado.comunicacao]}`,
-        score: communicationScore
-    });
 
     const total = reasons.reduce((acc, item) => acc + item.score, 0);
     return {
@@ -530,14 +518,6 @@ function listOverlapScore(listA, listB) {
     const setB = new Set(listB.map((item) => item.toLowerCase()));
     const intersection = [...setA].filter((item) => setB.has(item)).length;
     return intersection > 0 ? intersection / Math.max(setA.size, setB.size) : 0;
-}
-
-function communicationCompatibility(a, b) {
-    const levels = { intenso: 3, moderado: 2, minimo: 1 };
-    const distance = Math.abs((levels[a] || 2) - (levels[b] || 2));
-    if (distance === 0) return 1;
-    if (distance === 1) return 0.6;
-    return 0.25;
 }
 
 function splitTags(value) {
